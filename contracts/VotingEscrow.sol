@@ -45,7 +45,7 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
 
     uint256 constant WEEK = 7 * 86400; // all future times are rounded by week
     uint256 constant MAXTIME = 4 * 365 * 86400; // 4 years
-    uint256 constant MULTIPLIER = 10**18;
+    uint256 constant MULTIPLIER = 10 ** 18;
 
     address public mcbToken;
     address public muxToken;
@@ -173,11 +173,7 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     //         cannot extend their locktime and deposit for a brand new user
     // @param _addr User's wallet address
     // @param _value Amount to add to user's lock
-    function deposit(
-        address _token,
-        uint256 _value,
-        uint256 _unlockTime
-    ) external nonReentrant {
+    function deposit(address _token, uint256 _value, uint256 _unlockTime) external nonReentrant {
         _deposit(msg.sender, msg.sender, _token, _value, _unlockTime);
     }
 
@@ -300,11 +296,7 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     // @param addr User's wallet address. No user checkpoint if 0x0
     // @param oldLocked Previous locked amount / end lock time for the user
     // @param newLocked New locked amount / end lock time for the user
-    function _checkpoint(
-        address addr,
-        LockedBalance memory oldLocked,
-        LockedBalance memory newLocked
-    ) internal {
+    function _checkpoint(address addr, LockedBalance memory oldLocked, LockedBalance memory newLocked) internal {
         Point memory uOld;
         Point memory uNew;
         int128 oldDslope = 0;
@@ -539,7 +531,6 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     }
 
     // @notice Get the current voting power for `msg.sender`
-    // @dev Adheres to MiniMe `balanceOfAt` interface: https://github.com/Giveth/minime
     // @param addr User's wallet address
     // @return Voting power
     function balanceOf(address addr) public view returns (uint256) {
@@ -565,88 +556,12 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         }
     }
 
-    // @notice Measure voting power of `addr` at block height `_block`
-    // @dev Adheres to MiniMe `balanceOfAt` interface: https://github.com/Giveth/minime
-    // @param addr User's wallet address
-    // @param _block Block to calculate the voting power at
-    // @return Voting power
-    function balanceOfAt(address addr, uint256 _block) public view returns (uint256) {
-        // Copying and pasting totalSupply code because Vyper cannot pass by
-        // reference yet
-        require(_block <= block.number);
-
-        // Binary search
-        uint256 _min = 0;
-        uint256 _max = userPointEpoch[addr];
-        // Will be always enough for 128-bit numbers
-        for (uint256 i = 0; i < 128; i++) {
-            if (_min >= _max) {
-                break;
-            }
-            uint256 _mid = (_min + _max + 1) / 2;
-            if (userPointHistory[addr][_mid].blk <= _block) {
-                _min = _mid;
-            } else {
-                _max = _mid - 1;
-            }
-        }
-
-        Point memory upoint = userPointHistory[addr][_min];
-        uint256 maxEpoch = epoch;
-        uint256 _epoch = find_block_epoch(_block, maxEpoch);
-        Point memory point_0 = pointHistory[_epoch];
-        uint256 d_block = 0;
-        uint256 d_t = 0;
-        if (_epoch < maxEpoch) {
-            Point memory point_1 = pointHistory[_epoch + 1];
-            d_block = point_1.blk - point_0.blk;
-            d_t = point_1.ts - point_0.ts;
-        } else {
-            d_block = block.number - point_0.blk;
-            d_t = _blockTime() - point_0.ts;
-        }
-        uint256 block_time = point_0.ts;
-        if (d_block != 0) {
-            block_time += (d_t * (_block - point_0.blk)) / d_block;
-        }
-        upoint.bias -= upoint.slope * _safeI128(int256(block_time) - int256(upoint.ts));
-        if (upoint.bias >= 0) {
-            return _safeU256(upoint.bias);
-        } else {
-            return 0;
-        }
-    }
-
     // @notice Calculate total voting power
     // @dev Adheres to the IERC20Upgradeable `totalSupply` interface for Aragon compatibility
     // @return Total voting power
     function totalSupply() external view returns (uint256) {
         Point storage lastPoint = pointHistory[epoch];
         return _supplyWhen(lastPoint, _blockTime());
-    }
-
-    // @notice Calculate total voting power
-    // @dev Adheres to the IERC20Upgradeable `totalSupply` interface for Aragon compatibility
-    // @return Total voting power
-    function totalSupplyAt(uint256 _block) public view returns (uint256) {
-        require(_block <= block.number);
-        uint256 _epoch = epoch;
-        uint256 target_epoch = find_block_epoch(_block, _epoch);
-
-        Point storage point = pointHistory[target_epoch];
-        uint256 dt = 0;
-        if (target_epoch < _epoch) {
-            Point storage pointNext = pointHistory[target_epoch + 1];
-            if (point.blk != pointNext.blk) {
-                dt = ((_block - point.blk) * (pointNext.ts - point.ts)) / (pointNext.blk - point.blk);
-            }
-        } else {
-            if (point.blk != block.number) {
-                dt = ((_block - point.blk) * (_blockTime() - point.ts)) / (block.number - point.blk);
-            }
-        }
-        // Now dt contains info on how far are we beyond point
-        return _supplyWhen(point, point.ts + dt);
     }
 
     // // @notice Calculate total voting power

@@ -1,0 +1,191 @@
+{
+  "ProxyAdmin": {
+    "type": "preset",
+    "name": "ProxyAdmin",
+    "address": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A"
+  },
+  "WETH9": {
+    "type": "preset",
+    "name": "WETH9",
+    "address": "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
+  },
+  "MlpToken__implementation": {
+    "type": "plain",
+    "name": "MlpToken__implementation",
+    "address": "0x085F5B8945426Aa5e8239CD172070d0301Fe33BA",
+    "deployedAt": 9826501
+  },
+  "Mlp": {
+    "type": "upgradeable",
+    "name": "Mlp",
+    "address": "0x7CbaF5a14D953fF896E5B3312031515c858737C8",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x085F5B8945426Aa5e8239CD172070d0301Fe33BA"
+    },
+    "deployedAt": 9826504
+  },
+  "MCB": {
+    "type": "preset",
+    "name": "MCB",
+    "address": "0x4e352cF164E64ADCBad318C3a1e222E9EBa4Ce42"
+  },
+  "Mux__implementation": {
+    "type": "plain",
+    "name": "Mux__implementation",
+    "address": "0x454C4eA9e1593805c7d40f34E6e3C8C39ec20d8A",
+    "deployedAt": 19083309
+  },
+  "Mux": {
+    "type": "upgradeable",
+    "name": "Mux",
+    "address": "0x8BB2Ac0DCF1E86550534cEE5E9C8DED4269b679B",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x454C4eA9e1593805c7d40f34E6e3C8C39ec20d8A"
+    },
+    "deployedAt": 19083317
+  },
+  "RewardRouter__implementation": {
+    "type": "plain",
+    "name": "RewardRouter__implementation",
+    "address": "0x7FBD0C4d87bf25EB355aEaF23856E3d6791184DD",
+    "deployedAt": 23486622
+  },
+  "RewardRouter": {
+    "type": "upgradeable",
+    "name": "RewardRouter",
+    "address": "0xaf9C4F6A0ceB02d4217Ff73f3C95BbC8c7320ceE",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0xE300C21bb64F74D87b3847a02D03eA3e864b9BAd"
+    },
+    "deployedAt": 19083624
+  },
+  "FeeDistributor__implementation": {
+    "type": "plain",
+    "name": "FeeDistributor__implementation",
+    "address": "0xdC500D973F9b2456c4015Ff74B4bF0d537b4b002",
+    "deployedAt": 19083629
+  },
+  "FeeDistributor": {
+    "type": "upgradeable",
+    "name": "FeeDistributor",
+    "address": "0x6256dc556EE340952b8d8778f22608fd45592859",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x6f3fAe2fFe0b33e54daa5FD23BA0554D4582d5A2"
+    },
+    "deployedAt": 19083633
+  },
+  "MuxDistributor__implementation": {
+    "type": "plain",
+    "name": "MuxDistributor__implementation",
+    "address": "0xC8efD5D238cCF8b4d1C859Bf4dCe1dc3bf1AD667",
+    "deployedAt": 19083643
+  },
+  "MuxDistributor": {
+    "type": "upgradeable",
+    "name": "MuxDistributor",
+    "address": "0xF66937704923DE6FF7cD51861F772C1eB1C431e9",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0xC8efD5D238cCF8b4d1C859Bf4dCe1dc3bf1AD667"
+    },
+    "deployedAt": 19083649
+  },
+  "MlpRewardTracker__implementation": {
+    "type": "plain",
+    "name": "MlpRewardTracker__implementation",
+    "address": "0xB0cF86a9E40Df2DAFC05f9750bd18c51d3D69330",
+    "deployedAt": 19083654
+  },
+  "MlpFeeRewardTracker": {
+    "type": "upgradeable",
+    "name": "MlpFeeRewardTracker",
+    "address": "0x290450cDea757c68E4Fe6032ff3886D204292914",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0xB0cF86a9E40Df2DAFC05f9750bd18c51d3D69330"
+    },
+    "deployedAt": 19083657
+  },
+  "MlpMuxRewardTracker": {
+    "type": "upgradeable",
+    "name": "MlpMuxRewardTracker",
+    "address": "0x0a9bbf8299FEd2441009a7Bb44874EE453de8e5D",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0xB0cF86a9E40Df2DAFC05f9750bd18c51d3D69330"
+    },
+    "deployedAt": 19083660
+  },
+  "VotingEscrow__implementation": {
+    "type": "plain",
+    "name": "VotingEscrow__implementation",
+    "address": "0x5172205CA5b352BC429EE2904D0297b7aCB3F785",
+    "deployedAt": 19094107
+  },
+  "VotingEscrow": {
+    "type": "upgradeable",
+    "name": "VotingEscrow",
+    "address": "0xA65bA125a25b51539a3d10910557b28215097810",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x5172205CA5b352BC429EE2904D0297b7aCB3F785"
+    },
+    "deployedAt": 19083675
+  },
+  "MuxRewardTracker__implementation": {
+    "type": "plain",
+    "name": "MuxRewardTracker__implementation",
+    "address": "0x28345899567fa8eF459b5BB171d63E0719affd16",
+    "deployedAt": 19083676
+  },
+  "VeFeeRewardTracker": {
+    "type": "upgradeable",
+    "name": "VeFeeRewardTracker",
+    "address": "0x9357e3b52fd40CA943264D7c85550D97530ae94E",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x28345899567fa8eF459b5BB171d63E0719affd16"
+    },
+    "deployedAt": 19083680
+  },
+  "VeMuxRewardTracker": {
+    "type": "upgradeable",
+    "name": "VeMuxRewardTracker",
+    "address": "0x2245c73C01Bad2404be0B13B852534C9672bE696",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x28345899567fa8eF459b5BB171d63E0719affd16"
+    },
+    "deployedAt": 19083682
+  },
+  "Vester__implementation": {
+    "type": "plain",
+    "name": "Vester__implementation",
+    "address": "0x629c9b0262677f3E40872b767485F25B7b60003c",
+    "deployedAt": 22268083
+  },
+  "MlpVester": {
+    "type": "upgradeable",
+    "name": "MlpVester",
+    "address": "0xBCF8c124975DE6277D8397A3Cad26E2333620226",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x6f853Ab58aa5716529e735C668FE5BbFE970015c"
+    },
+    "deployedAt": 19083697
+  },
+  "MuxVester": {
+    "type": "upgradeable",
+    "name": "MuxVester",
+    "address": "0xD7e864658DdE98B1A1d70ce6d84D78e0A8e8aD18",
+    "dependencies": {
+      "admin": "0xE52d9a3CBA458832A65cfa9FC8a74bacAbdeB32A",
+      "implementation": "0x6f853Ab58aa5716529e735C668FE5BbFE970015c"
+    },
+    "deployedAt": 19083702
+  }
+}

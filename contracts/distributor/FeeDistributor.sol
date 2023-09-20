@@ -58,16 +58,16 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
     }
 
     // to help users who accidentally send their tokens to this contract
-    function withdrawToken(
-        address _token,
-        address _account,
-        uint256 _amount
-    ) external onlyOwner {
+    function withdrawToken(address _token, address _account, uint256 _amount) external onlyOwner {
         IERC20Upgradeable(_token).safeTransfer(_account, _amount);
     }
 
     function setHolderRewardProportion(uint256 _proportion) external onlyOwner {
         _setHolderRewardProportion(_proportion);
+    }
+
+    function setExtraRewardProportion(uint256 _proportion) external onlyOwner {
+        _setExtraRewardProportion(_proportion);
     }
 
     function notifyReward(uint256 amount) external nonReentrant {
@@ -138,15 +138,9 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
         emit SetExtraRewardProportion(_proportion);
     }
 
-    function _getFeeDistribution(uint256 feeAmount)
-        internal
-        view
-        returns (
-            uint256 toMlpAmount,
-            uint256 toMuxAmount,
-            uint256 toPmoAmount
-        )
-    {
+    function _getFeeDistribution(
+        uint256 feeAmount
+    ) internal view returns (uint256 toMlpAmount, uint256 toMuxAmount, uint256 toPmoAmount) {
         uint256 toHolderAmount = (feeAmount * holderRewardProportion) / 1e18;
         uint256 extraToVeAmount = (feeAmount * extraRewardProportion) / 1e18;
         // distribute to holder part
@@ -161,12 +155,7 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
     function _pendingAmounts()
         internal
         view
-        returns (
-            uint256 totalAmount,
-            uint256 toMlpAmount,
-            uint256 toMuxAmount,
-            uint256 toPmoAmount
-        )
+        returns (uint256 totalAmount, uint256 toMlpAmount, uint256 toMuxAmount, uint256 toPmoAmount)
     {
         uint256 periodElapsed = lastTimeRewardApplicable() - lastUpdateTime;
         // no new rewards

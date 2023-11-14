@@ -94,7 +94,7 @@ contract MuxRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IMu
         uint256 t = timeCursor;
         uint256 roundedTimestamp = (_blockTime() / WEEK) * WEEK;
         for (uint256 i = 0; i < 20; i++) {
-            if (t > roundedTimestamp) {
+            if (t > roundedTimestamp || _blockTime() == roundedTimestamp) {
                 break;
             } else {
                 uint256 epoch = IVotingEscrow(ve).findTimestampEpoch(t);

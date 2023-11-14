@@ -15,7 +15,7 @@ describe("MlpRewardTracker", async () => {
 
   let router: Contract
   let zeroAddress = "0x0000000000000000000000000000000000000000"
-  let epsilon = "1000000000"
+  let epsilon = toWei("1")
 
   before(async () => {
     const accounts = await ethers.getSigners()
@@ -47,7 +47,7 @@ describe("MlpRewardTracker", async () => {
     await weth.mint(user0.address, toWei("5000"))
     await weth.approve(dist.address, toWei("50000"))
     await dist.setBlockTime(86400 * 7)
-    await dist.notifyReward(toWei("5000"))
+    await dist.notifyReward(toWei("5000"), toWei("0"))
 
     var start = await dist.epochBeginTime()
     var end = await dist.epochEndTime()
@@ -67,7 +67,7 @@ describe("MlpRewardTracker", async () => {
     // restart
     await dist.setBlockTime(86400 * 7 * 3 + 86400) // 3 weeks + 1 day
     await weth.mint(user0.address, toWei("2000"))
-    await dist.notifyReward(toWei("2000"))
+    await dist.notifyReward(toWei("2000"), toWei("0"))
     expect(await weth.balanceOf(dist.address)).to.be.closeTo(toWei("2000"), 1000000)
 
     var start = await dist.epochBeginTime()
@@ -79,7 +79,7 @@ describe("MlpRewardTracker", async () => {
       expect(await dist.pendingRewards()).to.be.closeTo(B.from(86400).mul(rate), 1000000)
     }
     await weth.mint(user0.address, toWei("2000"))
-    await dist.notifyReward(toWei("1000"))
+    await dist.notifyReward(toWei("1000"), toWei("0"))
     var rate = B.from(toWei("3000").sub(B.from(86400).mul(rate))).div(B.from(end - start - 86400))
     expect(await dist.rewardRate()).to.be.closeTo(rate, 1000)
     {
@@ -110,7 +110,7 @@ describe("MlpRewardTracker", async () => {
     await weth.mint(user0.address, toWei("5000"))
     await weth.approve(dist.address, toWei("5000"))
     await dist.setBlockTime(86400 * 7)
-    await dist.notifyReward(toWei("5000"))
+    await dist.notifyReward(toWei("5000"), toWei("0"))
 
     // +3000
     await dist.setBlockTime(86400 * 7 + 3000)
@@ -172,13 +172,13 @@ describe("MlpRewardTracker", async () => {
     await mcb.mint(user0.address, muxAmount)
     await mcb.approve(vemux.address, muxAmount)
     await vemux.depositFor(user0.address, user0.address, mcb.address, muxAmount, time + 86400 * 365)
-    expect(await vemux.balanceOf(user0.address)).to.be.closeTo(muxAmount.div(4), toWei("0.01"))
+    expect(await vemux.balanceOf(user0.address)).to.be.closeTo(muxAmount.div(4), epsilon)
     await manager.setPoolOwnedRate(toWei("0.5")) // 1000:1000
 
     // fee
     await weth.mint(user0.address, toWei("5000"))
     await weth.approve(dist.address, toWei("5000"))
-    await dist.notifyReward(toWei("5000"))
+    await dist.notifyReward(toWei("5000"), toWei("0"))
 
     // + 3 days
     time += 86400 * 3

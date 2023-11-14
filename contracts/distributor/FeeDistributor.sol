@@ -33,13 +33,15 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
     uint256 public lastUpdateTime;
 
     uint256 public override rewardRate;
-
     uint256 public extraRewardProportion;
+
+    uint256 public extraVeRewardRate;
 
     event NotifyReward(uint256 amount, uint256 rewardRate, uint256 _epochBeginTime, uint256 _epochEndTime);
     event Distribute(uint256 amount, uint256 toMlpAmount, uint256 toMuxAmount, uint256 toPorAmount);
     event SetHolderRewardProportion(uint256 newProportion);
     event SetExtraRewardProportion(uint256 newProportion);
+    event NotifyExtraReward(uint256 amount, uint256 rewardRate, uint256 _epochBeginTime, uint256 _epochEndTime);
 
     function initialize(
         address _rewardToken,
@@ -70,11 +72,11 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
         _setExtraRewardProportion(_proportion);
     }
 
-    function notifyReward(uint256 amount) external nonReentrant {
+    function notifyReward(uint256 amount, uint256 extraVeReward) external nonReentrant {
         require(amount > 0, "amount is zero");
 
         distribute();
-        IERC20Upgradeable(rewardToken).safeTransferFrom(msg.sender, address(this), amount);
+        IERC20Upgradeable(rewardToken).safeTransferFrom(msg.sender, address(this), amount + extraVeReward);
 
         uint256 _now = _blockTime();
         if (_now > epochEndTime) {
@@ -82,13 +84,18 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
             epochBeginTime = _now;
             epochEndTime = (_now / EPOCH_PERIOD + 1) * EPOCH_PERIOD; // to next weekend
             rewardRate = amount / (epochEndTime - _now);
+            extraVeRewardRate = extraVeReward / (epochEndTime - _now);
             lastUpdateTime = _now;
         } else {
             // if not, increase current reward rate
             rewardRate += amount / (epochEndTime - _now);
+            extraVeRewardRate += extraVeReward / (epochEndTime - _now);
         }
 
         emit NotifyReward(amount, rewardRate, epochBeginTime, epochEndTime);
+        if (extraVeReward > 0) {
+            emit NotifyExtraReward(extraVeReward, extraVeRewardRate, epochBeginTime, epochEndTime);
+        }
     }
 
     function pendingRewards() public view returns (uint256 totalAmount) {
@@ -139,7 +146,8 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
     }
 
     function _getFeeDistribution(
-        uint256 feeAmount
+        uint256 feeAmount,
+        uint256 extraVeReward
     ) internal view returns (uint256 toMlpAmount, uint256 toMuxAmount, uint256 toPmoAmount) {
         uint256 toHolderAmount = (feeAmount * holderRewardProportion) / 1e18;
         uint256 extraToVeAmount = (feeAmount * extraRewardProportion) / 1e18;
@@ -148,6 +156,7 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
         toMlpAmount = toHolderAmount - toMuxAmount;
         // add up extra part for mux (ve)
         toMuxAmount += extraToVeAmount;
+        toMuxAmount += extraVeReward;
         // others goes to pol
         toPmoAmount = feeAmount - toHolderAmount - extraToVeAmount;
     }
@@ -162,8 +171,10 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
         if (periodElapsed == 0) {
             (totalAmount, toMlpAmount, toMuxAmount, toPmoAmount) = (0, 0, 0, 0);
         } else {
-            totalAmount = rewardRate * periodElapsed;
-            (toMlpAmount, toMuxAmount, toPmoAmount) = _getFeeDistribution(totalAmount);
+            uint256 feeAmount = rewardRate * periodElapsed;
+            uint256 extraVeReward = extraVeRewardRate * periodElapsed;
+            (toMlpAmount, toMuxAmount, toPmoAmount) = _getFeeDistribution(feeAmount, extraVeReward);
+            totalAmount = feeAmount + extraVeReward;
         }
     }
 

@@ -14,7 +14,7 @@ describe("MlpRewardTracker", async () => {
   let user3: SignerWithAddress
 
   let zeroAddress = "0x0000000000000000000000000000000000000000"
-  let epsilon = "100000000"
+  let epsilon = toWei("1")
   let year = 365 * 86400
   let week = 7 * 86400
   let day = 86400

@@ -185,7 +185,7 @@ describe("Integration", async () => {
     await mux.mint(muxDist.address, toWei("50000000"))
     await weth.mint(user0.address, toWei("5000"))
     await weth.connect(user0).approve(feeDist.address, toWei("5000"))
-    await feeDist.notifyReward(toWei("5000"))
+    await feeDist.notifyReward(toWei("5000"), toWei("0"))
 
     await setTime(base + 5 * 86400) // +5 days
 
@@ -199,6 +199,7 @@ describe("Integration", async () => {
 
     await await mlpFeeTracker.claim(user0.address)
 
+    await setTime(base + 14 * 86400 + 1)
     await veFeeTracker.checkpointTotalSupply()
     await veMuxTracker.checkpointTotalSupply()
 
@@ -231,7 +232,7 @@ describe("Integration", async () => {
     await mux.mint(muxDist.address, toWei("50000000"))
     await weth.mint(user0.address, toWei("5000"))
     await weth.connect(user0).approve(feeDist.address, toWei("5000"))
-    await feeDist.notifyReward(toWei("5000"))
+    await feeDist.notifyReward(toWei("5000"), toWei("0"))
 
     await setTime(base + 5 * 86400) // +5 days
     console.log(await router.poolOwnedRate())
@@ -274,21 +275,21 @@ describe("Integration", async () => {
     await setTime(base + 1000) // week0, no reward
     await mcb.approve(vemux.address, toWei("10000"))
     await router.stakeMcb(toWei("200"), base + 1000 + 86400 * 365 * 4)
-    await feeDist.notifyReward(toWei("100"))
+    await feeDist.notifyReward(toWei("100"), toWei("0"))
 
     await setTime(base + WEEK + 1000) // week1
     console.log("WEEK1", await veFeeTracker.callStatic.claimable(user0.address))
     await veFeeTracker.claim(user0.address)
-    await feeDist.notifyReward(toWei("200")) // wasted
+    await feeDist.notifyReward(toWei("200"), toWei("0")) // wasted
     console.log("notify 200")
     console.log("WEEK1", await veFeeTracker.callStatic.claimable(user0.address))
 
     await setTime(base + WEEK * 2 - 2000) // week1
-    await feeDist.notifyReward(toWei("0.1"))
+    await feeDist.notifyReward(toWei("0.1"), toWei("0"))
 
     await setTime(base + WEEK * 2 + 1000) // week2
     console.log("WEEK2", await veFeeTracker.callStatic.claimable(user0.address))
-    await feeDist.notifyReward(toWei("300"))
+    await feeDist.notifyReward(toWei("300"), toWei("0"))
     console.log("notify 300")
     console.log("WEEK2", await veFeeTracker.callStatic.claimable(user0.address))
     await veFeeTracker.claim(user0.address)
@@ -312,11 +313,11 @@ describe("Integration", async () => {
     await setTime(base + 1000) // week0, no reward
     await mcb.approve(vemux.address, toWei("10000"))
     await router.stakeMcb(toWei("200"), base + 1000 + 86400 * 365 * 4)
-    await feeDist.notifyReward(toWei("100"))
+    await feeDist.notifyReward(toWei("100"), toWei("0"))
 
     await setTime(base + WEEK + 1000) // week1
     console.log("WEEK1", await veFeeTracker.callStatic.claimable(user0.address))
-    await feeDist.notifyReward(toWei("200")) // wasted
+    await feeDist.notifyReward(toWei("200"), toWei("0")) // wasted
     console.log("notify 200")
 
     await setTime(base + WEEK * 3 + 1000) // week2
@@ -350,11 +351,11 @@ describe("Integration", async () => {
     await mlp.approve(mlpFeeTracker.address, toWei("10000"))
 
     await router.stakeMlp(toWei("200"))
-    await feeDist.notifyReward(toWei("10"))
+    await feeDist.notifyReward(toWei("10"), toWei("0"))
 
     await setTime(base + WEEK + 1000) // week1
     console.log("WEEK1", await veFeeTracker.callStatic.claimable(user0.address))
-    await feeDist.notifyReward(toWei("20")) // wasted
+    await feeDist.notifyReward(toWei("20"), toWei("0")) // wasted
     console.log("notify 20")
 
     await setTime(base + WEEK * 3 + 1000) // week2
@@ -378,7 +379,7 @@ describe("Integration", async () => {
     await mux.approve(muxVester.address, toWei("10000"))
     await mlpVester.deposit(toWei("100"))
     await muxVester.deposit(toWei("100"))
-    await feeDist.notifyReward(toWei("10"))
+    await feeDist.notifyReward(toWei("10"), toWei("0"))
 
     await setTime(base + WEEK * 4 + 1000) // week2
     {
@@ -392,5 +393,42 @@ describe("Integration", async () => {
       const balance1 = await ethers.provider.getBalance(user0.address)
       expect(balance1.sub(balance0)).to.be.closeTo(mlpFeeAmount.add(veFeeAmount), toWei("0.01"))
     }
+  })
+
+  it("ve stake", async () => {
+    await mlp.mint(user3.address, toWei("200"))
+    await mcb.mint(user0.address, toWei("10000"))
+    await weth.mint(user0.address, toWei("10000"))
+    await weth.approve(feeDist.address, toWei("10000"))
+
+    console.log(fromWei(await router.poolOwnedRate()))
+    console.log(fromWei(await router.votingEscrowedRate()))
+
+    const base = 86400 * 364
+    await setTime(base + 1000) // week0, no reward
+    await mcb.approve(vemux.address, toWei("10000"))
+    await router.stakeMcb(toWei("200"), base + 1000 + 86400 * 365 * 4)
+    await feeDist.notifyReward(toWei("1"), toWei("0"))
+
+    await setTime(base + WEEK + 1000) // week1
+    console.log("CLAIMABLE", fromWei(await veFeeTracker.callStatic.claimable(user0.address)))
+    await veFeeTracker.claim(user0.address)
+
+    await setTime(base + WEEK * 3) // week2
+    console.log("CLAIMABLE", fromWei(await veFeeTracker.callStatic.claimable(user0.address)))
+    await veFeeTracker.claim(user0.address)
+
+    await setTime(base + WEEK * 4) // week3
+    console.log("CLAIMABLE", fromWei(await veFeeTracker.callStatic.claimable(user0.address)))
+    await veFeeTracker.checkpointTotalSupply()
+    await mcb.approve(vemux.address, toWei("10000"))
+    await router.stakeMcb(toWei("200"), base + 1000 + 86400 * 365 * 4)
+    await feeDist.notifyReward(toWei("100"), toWei("0"))
+
+    await setTime(base + WEEK * 5 + 100) // week3
+    console.log("CLAIMABLE", fromWei(await veFeeTracker.callStatic.claimable(user0.address)))
+    console.log(fromWei(await weth.balanceOf(user0.address)))
+    await veFeeTracker.claim(user0.address)
+    console.log(fromWei(await weth.balanceOf(user0.address)))
   })
 })

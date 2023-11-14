@@ -83,11 +83,7 @@ contract MlpRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IER
     }
 
     // to help users who accidentally send their tokens to this contract
-    function withdrawToken(
-        address _token,
-        address _account,
-        uint256 _amount
-    ) external onlyOwner {
+    function withdrawToken(address _token, address _account, uint256 _amount) external onlyOwner {
         IERC20Upgradeable(_token).safeTransfer(_account, _amount);
     }
 
@@ -143,11 +139,7 @@ contract MlpRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IER
         return true;
     }
 
-    function transferFrom(
-        address _sender,
-        address _recipient,
-        uint256 _amount
-    ) external override returns (bool) {
+    function transferFrom(address _sender, address _recipient, uint256 _amount) external override returns (bool) {
         if (isHandler[msg.sender]) {
             _transfer(_sender, _recipient, _amount);
             return true;
@@ -231,11 +223,7 @@ contract MlpRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IER
         emit Transfer(_account, address(0), _amount);
     }
 
-    function _transfer(
-        address _sender,
-        address _recipient,
-        uint256 _amount
-    ) private {
+    function _transfer(address _sender, address _recipient, uint256 _amount) private {
         require(_sender != address(0), "RewardTracker: transfer from the zero address");
         require(_recipient != address(0), "RewardTracker: transfer to the zero address");
 
@@ -249,11 +237,7 @@ contract MlpRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IER
         emit Transfer(_sender, _recipient, _amount);
     }
 
-    function _approve(
-        address _owner,
-        address _spender,
-        uint256 _amount
-    ) private {
+    function _approve(address _owner, address _spender, uint256 _amount) private {
         require(_owner != address(0), "RewardTracker: approve from the zero address");
         require(_spender != address(0), "RewardTracker: approve to the zero address");
 
@@ -266,12 +250,7 @@ contract MlpRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IER
         require(isHandler[msg.sender], "RewardTracker: forbidden");
     }
 
-    function _stake(
-        address _fundingAccount,
-        address _account,
-        address _depositToken,
-        uint256 _amount
-    ) private {
+    function _stake(address _fundingAccount, address _account, address _depositToken, uint256 _amount) private {
         require(_amount > 0, "RewardTracker: invalid _amount");
         require(isDepositToken[_depositToken], "RewardTracker: invalid _depositToken");
 
@@ -286,12 +265,7 @@ contract MlpRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IER
         _mint(_account, _amount);
     }
 
-    function _unstake(
-        address _account,
-        address _depositToken,
-        uint256 _amount,
-        address _receiver
-    ) private {
+    function _unstake(address _account, address _depositToken, uint256 _amount, address _receiver) private {
         require(_amount > 0, "RewardTracker: invalid _amount");
         require(isDepositToken[_depositToken], "RewardTracker: invalid _depositToken");
         _updateRewards(_account);

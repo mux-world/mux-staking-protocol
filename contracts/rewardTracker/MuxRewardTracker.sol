@@ -114,11 +114,7 @@ contract MuxRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IMu
         _checkpointTotalSupply();
     }
 
-    function _claim(
-        address _addr,
-        address ve,
-        uint256 _lastTokenTime
-    ) internal returns (uint256) {
+    function _claim(address _addr, address ve, uint256 _lastTokenTime) internal returns (uint256) {
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 
@@ -178,11 +174,7 @@ contract MuxRewardTracker is ReentrancyGuardUpgradeable, OwnableUpgradeable, IMu
         return toDistribute;
     }
 
-    function _claimable(
-        address _addr,
-        address ve,
-        uint256 _lastTokenTime
-    ) internal view returns (uint256) {
+    function _claimable(address _addr, address ve, uint256 _lastTokenTime) internal view returns (uint256) {
         uint256 userEpoch = 0;
         uint256 toDistribute = 0;
 

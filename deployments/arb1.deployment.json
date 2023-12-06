@@ -65,8 +65,8 @@
   "FeeDistributor__implementation": {
     "type": "plain",
     "name": "FeeDistributor__implementation",
-    "address": "0xdC500D973F9b2456c4015Ff74B4bF0d537b4b002",
-    "deployedAt": 19083629
+    "address": "0xC30992d3ab2289d7510D18f25D6cF7e9275C4ec1",
+    "deployedAt": 132839803
   },
   "FeeDistributor": {
     "type": "upgradeable",
@@ -139,7 +139,7 @@
   "MuxRewardTracker__implementation": {
     "type": "plain",
     "name": "MuxRewardTracker__implementation",
-    "address": "0x28345899567fa8eF459b5BB171d63E0719affd16",
+    "address": "0x0Ff022d8Ac086F7836C3226291ECfa73D380Adb4",
     "deployedAt": 19083676
   },
   "VeFeeRewardTracker": {
@@ -187,5 +187,11 @@
       "implementation": "0x6f853Ab58aa5716529e735C668FE5BbFE970015c"
     },
     "deployedAt": 19083702
+  },
+  "TimelockControllerUpgradeable": {
+    "type": "plain",
+    "name": "TimelockControllerUpgradeable",
+    "address": "0xc2D28778447B1B0B2Ae3aD17dC6616b546FBBeBb",
+    "deployedAt": 18300188
   }
 }

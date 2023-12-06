@@ -103,16 +103,14 @@ contract RewardRouter is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     }
 
     // to help users who accidentally send their tokens to this contract
-    function withdrawToken(
-        address _token,
-        address _account,
-        uint256 _amount
-    ) external onlyOwner {
+    function withdrawToken(address _token, address _account, uint256 _amount) external onlyOwner {
         IERC20Upgradeable(_token).safeTransfer(_account, _amount);
     }
 
     // ========================== aggregated staking interfaces ==========================
-    function claimableRewards(address account)
+    function claimableRewards(
+        address account
+    )
         external
         returns (
             uint256 mlpFeeAmount,

@@ -200,4 +200,153 @@ describe("MlpRewardTracker", async () => {
     await muxTracker.claimForAccount(user0.address, user0.address)
     expect(await weth.balanceOf(user0.address)).to.be.closeTo(reward.div(2).div(2).div(2), epsilon)
   })
+
+  it("extra fee3", async () => {
+    const weth = await createContract("MockERC20", ["WETH", "WETH", 18])
+    const mlp = await createContract("MockERC20", ["MLP", "MLP", 18])
+    const mcb = await createContract("MockERC20", ["MUX", "MUX", 18])
+    const mux = await createContract("MockERC20", ["ESMUX", "ESMUX", 18])
+    const vemux = await createContract("TestVotingEscrow")
+    const manager = await createContract("MockRewardManager")
+
+    const mlpTracker = await createContract("MlpRewardTracker")
+    const muxTracker = await createContract("TestMuxRewardTracker")
+    const dist = await createContract("TestFeeDistributor")
+
+    await vemux.initialize(mcb.address, mux.address, "VEMUX", "VEMUX", 0)
+    await mlpTracker.initialize("StakedMlp", "SMLP", [mlp.address], dist.address)
+    await muxTracker.initialize(dist.address, vemux.address, weth.address, 1000)
+    await dist.initialize(weth.address, manager.address, mlpTracker.address, muxTracker.address, toWei("0.5"))
+    await vemux.setHandler(user0.address, true)
+    await muxTracker.setHandler(user0.address, true)
+
+    const setBlockTime = async (n: Number) => {
+      await dist.setBlockTime(n)
+      await vemux.setBlockTime(n)
+      await muxTracker.setBlockTime(n)
+    }
+
+    // start from 1000
+    var time = 1000
+    await setBlockTime(time)
+    // ==============================================================
+    const mlpAmount = B.from(toWei("1000"))
+    const muxAmount = B.from(toWei("1000"))
+    // stake mlp
+    await mlp.mint(user0.address, mlpAmount)
+    await mlp.approve(mlpTracker.address, mlpAmount)
+    await mlpTracker.stake(mlp.address, mlpAmount)
+    await mlp.mint(user2.address, mlpAmount)
+    await mlp.connect(user2).approve(mlpTracker.address, mlpAmount)
+    await mlpTracker.connect(user2).stake(mlp.address, mlpAmount)
+
+    await mcb.mint(user0.address, muxAmount)
+    await mcb.approve(vemux.address, muxAmount)
+    await vemux.depositFor(user0.address, user0.address, mcb.address, muxAmount, time + 86400 * 365)
+    expect(await vemux.balanceOf(user0.address)).to.be.closeTo(muxAmount.div(4), epsilon)
+    await manager.setPoolOwnedRate(toWei("0.5")) // 1000:1000
+
+    // fee
+    await weth.mint(user0.address, toWei("1000").add(1))
+    await weth.approve(dist.address, toWei("2000"))
+    await dist.notifyReward(1, toWei("1000"))
+
+    // + 3 days
+    time = 86400 * 3
+    await dist.setBlockTime(time)
+    // ==============================================================
+    var start = await dist.epochBeginTime()
+    var end = await dist.epochEndTime()
+    var rate = B.from(toWei("0")).div(B.from(end - start))
+    expect(await dist.rewardRate()).to.equal(rate)
+    var extraRate = B.from(toWei("1000")).div(B.from(end - start))
+    expect(await dist.extraVeRewardRate()).to.equal(extraRate)
+
+    var extraReward = B.from(86400 * 3 - 1000).mul(extraRate)
+    expect(await dist.pendingRewards()).to.be.closeTo(extraReward, epsilon)
+
+    await mlpTracker.claim(user0.address)
+    expect(await weth.balanceOf(user0.address)).to.be.closeTo(toWei("0"), epsilon)
+
+    time = 86400 * 7
+    await dist.setBlockTime(time)
+    var extraReward = B.from(86400 * 7 - 86400 * 3).mul(extraRate)
+    expect(await dist.pendingRewards()).to.be.closeTo(extraReward, epsilon)
+  })
+
+  it("extra fee4", async () => {
+    const weth = await createContract("MockERC20", ["WETH", "WETH", 18])
+    const mlp = await createContract("MockERC20", ["MLP", "MLP", 18])
+    const mcb = await createContract("MockERC20", ["MUX", "MUX", 18])
+    const mux = await createContract("MockERC20", ["ESMUX", "ESMUX", 18])
+    const vemux = await createContract("TestVotingEscrow")
+    const manager = await createContract("MockRewardManager")
+
+    const mlpTracker = await createContract("MlpRewardTracker")
+    const muxTracker = await createContract("TestMuxRewardTracker")
+    const dist = await createContract("TestFeeDistributor")
+
+    await vemux.initialize(mcb.address, mux.address, "VEMUX", "VEMUX", 0)
+    await mlpTracker.initialize("StakedMlp", "SMLP", [mlp.address], dist.address)
+    await muxTracker.initialize(dist.address, vemux.address, weth.address, 1000)
+    await dist.initialize(weth.address, manager.address, mlpTracker.address, muxTracker.address, toWei("0.5"))
+    await vemux.setHandler(user0.address, true)
+    await muxTracker.setHandler(user0.address, true)
+
+    const setBlockTime = async (n: Number) => {
+      await dist.setBlockTime(n)
+      await vemux.setBlockTime(n)
+      await muxTracker.setBlockTime(n)
+    }
+
+    // start from 1000
+    var time = 1000
+    await setBlockTime(time)
+    // ==============================================================
+    const mlpAmount = B.from(toWei("1000"))
+    const muxAmount = B.from(toWei("1000"))
+    // stake mlp
+    await mlp.mint(user0.address, mlpAmount)
+    await mlp.approve(mlpTracker.address, mlpAmount)
+    await mlpTracker.stake(mlp.address, mlpAmount)
+    await mlp.mint(user2.address, mlpAmount)
+    await mlp.connect(user2).approve(mlpTracker.address, mlpAmount)
+    await mlpTracker.connect(user2).stake(mlp.address, mlpAmount)
+
+    await mcb.mint(user0.address, muxAmount)
+    await mcb.approve(vemux.address, muxAmount)
+    await vemux.depositFor(user0.address, user0.address, mcb.address, muxAmount, time + 86400 * 365)
+    expect(await vemux.balanceOf(user0.address)).to.be.closeTo(muxAmount.div(4), epsilon)
+    await manager.setPoolOwnedRate(toWei("0.5")) // 1000:1000
+
+    // fee
+    await weth.mint(user0.address, toWei("3000"))
+    await weth.approve(dist.address, toWei("3000"))
+    await dist.notifyReward(toWei("2000"), toWei("1000"))
+
+    // + 3 days
+    time = 86400 * 3
+    await dist.setBlockTime(time)
+    // ==============================================================
+    var start = await dist.epochBeginTime()
+    var end = await dist.epochEndTime()
+    var rate = B.from(toWei("2000")).div(B.from(end - start))
+    expect(await dist.rewardRate()).to.equal(rate)
+
+    var extraRate = B.from(toWei("1000")).div(B.from(end - start))
+    expect(await dist.extraVeRewardRate()).to.equal(extraRate)
+
+    var reward = B.from(86400 * 3 - 1000).mul(rate)
+    var extraReward = B.from(86400 * 3 - 1000).mul(extraRate)
+    expect(await dist.pendingRewards()).to.be.closeTo(extraReward.add(reward), epsilon)
+
+    await mlpTracker.claim(user0.address)
+    expect(await weth.balanceOf(user0.address)).to.be.closeTo(reward.div(2).div(2).div(2), epsilon)
+
+    time = 86400 * 7
+    await dist.setBlockTime(time)
+    var reward = B.from(86400 * 7 - 86400 * 3).mul(rate)
+    var extraReward = B.from(86400 * 7 - 86400 * 3).mul(extraRate)
+    expect(await dist.pendingRewards()).to.be.closeTo(extraReward.add(reward), epsilon)
+  })
 })

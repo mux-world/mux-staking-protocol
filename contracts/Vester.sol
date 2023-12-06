@@ -98,11 +98,13 @@ contract Vester is ReentrancyGuardUpgradeable, OwnableUpgradeable, IVester {
     }
 
     function deposit(uint256 _amount) external nonReentrant {
+        _updateStates(msg.sender, msg.sender);
         _deposit(msg.sender, _amount);
     }
 
     function depositForAccount(address _account, uint256 _amount) external nonReentrant {
         _validateHandler();
+        _updateStates(_account, _account);
         _deposit(_account, _amount);
     }
 
@@ -129,7 +131,14 @@ contract Vester is ReentrancyGuardUpgradeable, OwnableUpgradeable, IVester {
         _withdrawFor(msg.sender, msg.sender);
     }
 
-    function _withdrawFor(address account, address _receiver) internal {
+    function _updateStates(address account, address _receiver) internal {
+        _claim(account, _receiver);
+
+        delete cumulativeClaimAmounts[account];
+        delete claimedAmounts[account];
+    }
+
+    function _withdrawFor(address account, address _receiver) internal returns (uint256) {
         _claim(account, _receiver);
 
         uint256 claimedAmount = cumulativeClaimAmounts[account];
@@ -151,6 +160,7 @@ contract Vester is ReentrancyGuardUpgradeable, OwnableUpgradeable, IVester {
         delete lastVestingTimes[account];
 
         emit Withdraw(account, claimedAmount, balance);
+        return balance;
     }
 
     function setCumulativeRewardDeductions(address _account, uint256 _amount) external override nonReentrant {
@@ -342,6 +352,9 @@ contract Vester is ReentrancyGuardUpgradeable, OwnableUpgradeable, IVester {
 
     function _getNextClaimableAmount(address _account) private view returns (uint256) {
         uint256 timeDiff = _blockTime().sub(lastVestingTimes[_account]);
+        if (timeDiff == 0) {
+            return 0;
+        }
 
         uint256 balance = balances[_account];
         if (balance == 0) {

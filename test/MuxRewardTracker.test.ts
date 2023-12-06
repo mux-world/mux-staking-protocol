@@ -66,7 +66,7 @@ describe("MlpRewardTracker", async () => {
     await vemux.deposit(mcb.address, toWei("100"), 86400 * 364 + year * 4)
     expect(await vemux.balanceOf(user0.address)).to.be.closeTo(toWei("100"), epsilon)
 
-    await setBlockTime(86400 * 364 + 86400 * 7)
+    await setBlockTime(86400 * 364 + 86400 * 7 + 1)
     expect(await tracker.callStatic.claimable(user0.address)).to.be.closeTo(toWei("30240"), epsilon)
   })
 
@@ -99,7 +99,7 @@ describe("MlpRewardTracker", async () => {
     expect(await tracker.callStatic.claimable(user0.address)).to.be.closeTo(toWei("0"), epsilon)
 
     // week 2+
-    await setBlockTime(week + day * 14)
+    await setBlockTime(week + day * 14 + 1)
     console.log(await dist.pendingRewards())
     expect(await tracker.callStatic.claimable(user0.address)).to.be.closeTo(toWei("30240"), epsilon)
   })

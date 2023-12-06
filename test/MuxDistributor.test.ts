@@ -24,6 +24,7 @@ describe("MlpRewardTracker", async () => {
   let mlpTracker: Contract
   let veTracker: Contract
 
+
   before(async () => {
     const accounts = await ethers.getSigners()
     user0 = accounts[0]
@@ -92,10 +93,8 @@ describe("MlpRewardTracker", async () => {
 
     expect(await dist.pendingRewards()).to.equal(toWei("8640"))
     var amount = toWei("8640")
-      .mul(toWei("1").sub(toWei("0")))
-      .div(toWei("1"))
-      .mul(toWei("1").sub(toWei("0")))
-      .div(toWei("1"))
+      .mul(toWei("1").sub(toWei("0"))).div(toWei("1"))
+      .mul(toWei("1").sub(toWei("0"))).div(toWei("1"))
     expect(await dist.pendingMlpRewards()).to.equal(amount)
     expect(await dist.pendingMuxRewards()).to.equal(toWei("8640").sub(amount))
   })

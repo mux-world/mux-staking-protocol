@@ -118,16 +118,16 @@ describe("MlpRewardTracker", async () => {
     await tracker.setAverageStakedAmounts(user0.address, toWei("1500"))
     await vester.deposit(toWei("100"))
     // static
-    expect(await vester.getTotalVested(user0.address)).to.equal(toWei("200"))
+    expect(await vester.getTotalVested(user0.address)).to.equal(toWei("175"))
     expect(await vester.balanceOf(user0.address)).to.equal(toWei("175"))
-    expect(await vester.getVestedAmount(user0.address)).to.equal(toWei("200"))
-    expect(await vester.claimable(user0.address)).to.equal(toWei("25"))
+    expect(await vester.getVestedAmount(user0.address)).to.equal(toWei("175"))
+    expect(await vester.claimable(user0.address)).to.equal(toWei("0"))
     expect(await vester.pairAmounts(user0.address)).to.equal(toWei("1312.5")) // 175 / 200 * 1500
 
     await vester.claim()
-    expect(await vester.getTotalVested(user0.address)).to.equal(toWei("200"))
+    expect(await vester.getTotalVested(user0.address)).to.equal(toWei("175"))
     expect(await vester.balanceOf(user0.address)).to.equal(toWei("175"))
-    expect(await vester.getVestedAmount(user0.address)).to.equal(toWei("200"))
+    expect(await vester.getVestedAmount(user0.address)).to.equal(toWei("175"))
     expect(await vester.claimable(user0.address)).to.equal(toWei("0"))
     expect(await mux.balanceOf(user0.address)).to.equal(toWei("25"))
     expect(await vester.pairAmounts(user0.address)).to.equal(toWei("1312.5"))

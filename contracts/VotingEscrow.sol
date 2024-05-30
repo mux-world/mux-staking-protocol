@@ -189,11 +189,10 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         require(_value > 0, "Value is zero"); // dev: need non-zero value
         uint256 unlockTime = (_unlockTime / WEEK) * WEEK;
         require(unlockTime >= _locked.end, "Can only increase lock duration");
+        require(unlockTime > _blockTime(), "Can only lock until time in the future");
+        require(unlockTime <= _blockTime() + MAXTIME, "Voting lock can be 4 years max");
 
-        if (_locked.amount == 0) {
-            require(unlockTime > _blockTime(), "Can only lock until time in the future");
-            require(unlockTime <= _blockTime() + MAXTIME, "Voting lock can be 4 years max");
-        } else {
+        if (_locked.amount != 0) {
             require(_locked.end > _blockTime(), "Cannot add to expired lock. Withdraw");
         }
         _depositFor(_fundingAddr, _addr, _token, _value, unlockTime, _locked);

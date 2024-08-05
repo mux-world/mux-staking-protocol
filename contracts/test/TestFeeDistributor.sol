@@ -14,4 +14,11 @@ contract TestFeeDistributor is FeeDistributor {
     function _blockTime() internal view virtual override returns (uint256) {
         return mockBlockTime;
     }
+
+    function getFeeDistribution(
+        uint256 feeAmount,
+        uint256 extraVeReward
+    ) external view returns (uint256 toMlpAmount, uint256 toMuxAmount, uint256 toPmoAmount) {
+        return _getFeeDistribution(feeAmount, extraVeReward);
+    }
 }

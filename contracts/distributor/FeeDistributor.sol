@@ -79,6 +79,7 @@ contract FeeDistributor is ReentrancyGuardUpgradeable, OwnableUpgradeable, IRewa
         IERC20Upgradeable(rewardToken).safeTransferFrom(msg.sender, address(this), amount + extraVeReward);
 
         uint256 _now = _blockTime();
+        require(epochEndTime != _now, "epoch ended");
         if (_now > epochEndTime) {
             // if epoch ended, reset epoch time
             epochBeginTime = _now;

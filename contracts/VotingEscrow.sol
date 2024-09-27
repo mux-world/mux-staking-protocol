@@ -63,7 +63,7 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
     mapping(address => LockedBalance) public locked;
     mapping(address => DepositedBalance) public depositedBalances;
 
-    uint256 public averageUnlockTime;
+    uint256 private _deprecated;
     uint256 public epoch;
     mapping(uint256 => Point) public pointHistory; // epoch returns (unsigned point
     mapping(address => Point[1000000000]) public userPointHistory; // user returns (Point[user_epoch]
@@ -219,24 +219,6 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
         _depositFor(_addr, _addr, address(0), 0, unlockTime, _locked);
     }
 
-    function _updateAverageUnlockTime(
-        uint256 _oldValue,
-        uint256 _oldUnlockTime,
-        uint256 _value,
-        uint256 _unlockTime,
-        uint256 _supplyBefore,
-        uint256 _supply
-    ) internal {
-        // supply * (avgLockTime - now) + value * (unlock - now)
-        // -----------------------------------------------------
-        //                    total_supply
-        uint256 _now = _blockTime();
-        uint256 total = averageUnlockTime == 0 ? 0 : (averageUnlockTime - _now) * _supplyBefore;
-        uint256 previous = _oldUnlockTime <= _now ? 0 : (_oldUnlockTime - _now) * _oldValue;
-        uint256 next = (_unlockTime - _now) * _value;
-        averageUnlockTime = _now + (total - previous + next) / _supply;
-    }
-
     // @notice Deposit and lock tokens for a user
     // @param _addr User's wallet address
     // @param _value Amount to deposit
@@ -263,14 +245,6 @@ contract VotingEscrow is ReentrancyGuardUpgradeable, OwnableUpgradeable {
             _locked.end = _unlockTime;
         }
         locked[_addr] = _locked;
-        _updateAverageUnlockTime(
-            _safeU256(oldLocked.amount),
-            oldLocked.end,
-            _safeU256(_locked.amount),
-            _locked.end,
-            supplyBefore,
-            supply
-        );
 
         // Possibilities:
         // Both oldLocked.end could be current or expired ( >/< _blockTime())
